@@ -13,11 +13,7 @@ class TaskStore(object):
         return str(max_id + 1)
 
     def tasks(self):
-        result = []
-        for d in self._directory.directories():
-            result.append(Task(d))
-        return result
-        # return [Task(d) for d in self._directory.directories()]
+        return [Task(d) for d in self._directory.directories()]
 
     def make_task(self, name):
         task_id = self._next_task_id()
