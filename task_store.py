@@ -15,7 +15,6 @@ class TaskStore(object):
     def tasks(self):
         result = []
         for d in self._directory.directories():
-            print "Got %s" % d.path()
             result.append(Task(d))
         return result
         # return [Task(d) for d in self._directory.directories()]

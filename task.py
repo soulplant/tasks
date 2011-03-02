@@ -11,14 +11,12 @@ class Task(object):
         for line in lines:
             k, v = line.split(':')
             meta[k] = v
-        print 'parsing meta %s' % meta
         return meta
     
     def _unparse_meta(self, meta):
         return ["%s:%s" % (k, meta[k]) for k in meta]
     
     def save(self):
-        print "Saving!"
         self._directory.writelines('meta', self._unparse_meta(self._meta))
 
     def name(self):
