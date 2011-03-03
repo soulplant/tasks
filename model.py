@@ -92,6 +92,10 @@ class URL(Base):
         self.url = url
         self.name = name
 
+    # TODO Change show_* methods into string returning functions.
+    def show(self):
+        print self.url
+
 class LogEntry(Base):
     __tablename__ = 'log_entries'
 

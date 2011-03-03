@@ -262,6 +262,31 @@ class LogCommand(Command):
         for l in self.task.logs:
             l.show()
 
+class UrlCommand(Command):
+    name = "url"
+
+    def __init__(self, args):
+        Command.__init__(self)
+        self.args = args
+        self.url = self.has_arg('a', 'add', True)
+        self.task = self.get_named_task()
+
+    def execute(self):
+        if not self.task:
+            self.no_active_tasks()
+            return
+        if self.url:
+            self.task.add_url(self.url)
+            print "Added URL."
+            session.commit()
+            return
+        if len(self.task.urls) == 0:
+            print "No urls."
+            return
+        for url in self.task.urls:
+            url.show()
+
+
 Commands = [
     ListTasksCommand,
     AddTaskCommand,
@@ -274,6 +299,7 @@ Commands = [
     ReorderCommand,
     PickCommand,
     LogCommand,
+    UrlCommand,
 ]
 
 def lookup_command(name):
