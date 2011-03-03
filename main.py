@@ -99,15 +99,22 @@ class ActivateCommand(Command):
         self.args = args
         self.deactivate = self.has_arg('d', 'deactivate')
         self.block = self.has_arg('b', 'block', True)
+        self.inbox = self.has_arg('i', 'inbox')
         self.task = self.get_named_task()
 
     def execute(self):
+        if not self.task:
+            self.no_active_tasks()
+            return
         if self.deactivate:
             self.task.deactivate()
             action = "Deactivated"
         elif self.block:
             self.task.block(self.block)
             action = "Blocked"
+        elif self.inbox:
+            self.task.inbox()
+            action = "Inboxed"
         else:
             self.task.activate()
             action = "Activated"

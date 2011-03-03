@@ -46,6 +46,10 @@ class Task(Base):
         self.status = "inbox"
         self.active_order = 0
 
+    def inbox(self):
+        self.status = "inbox"
+        self.active_order = 0
+
     def log(self, message):
         self.logs.append(LogEntry(message))
 
