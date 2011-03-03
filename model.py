@@ -1,14 +1,18 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Time, Text, DateTime, Boolean, Enum
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.sql.expression import desc
 
 import datetime
 import os
 import sqlalchemy
 
 Base = declarative_base()
+
+def pretty_date(dt):
+    return dt.ctime()
 
 class Task(Base):
     __tablename__ = 'tasks'
@@ -95,11 +99,14 @@ class LogEntry(Base):
     created_at = Column(DateTime)
     message = Column(String)
     task_id = Column(Integer, ForeignKey('tasks.id'))
-    task = relationship(Task, backref=backref('logs', order_by=created_at))
+    task = relationship(Task, backref=backref('logs', order_by=desc(created_at)))
 
     def __init__(self, message):
         self.message = message
         self.created_at = datetime.datetime.now()
+
+    def show(self):
+        print "%s %s" % (pretty_date(self.created_at), self.message)
 
 class Tomato(Base):
     __tablename__ = 'tomatoes'

@@ -239,6 +239,29 @@ class PickCommand(Command):
         session.commit()
         print "Picked task %d" % self.task.id
 
+class LogCommand(Command):
+    name = "log"
+
+    def __init__(self, args):
+        Command.__init__(self)
+        self.args = args
+        self.message = self.has_arg('m', 'message', True)
+        self.task = self.get_named_task()
+
+    def execute(self):
+        if not self.task:
+            self.no_active_tasks()
+            return
+        if self.message:
+            self.task.log(self.message)
+            session.commit()
+            print "Logged message."
+            return
+
+        self.task.show_status_line()
+        for l in self.task.logs:
+            l.show()
+
 Commands = [
     ListTasksCommand,
     AddTaskCommand,
@@ -250,6 +273,7 @@ Commands = [
     DoneCommand,
     ReorderCommand,
     PickCommand,
+    LogCommand,
 ]
 
 def lookup_command(name):
