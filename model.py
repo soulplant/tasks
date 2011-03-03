@@ -27,6 +27,12 @@ class Task(Base):
         self.status = "inbox"
         self.active_order = 0
 
+    def _set_status(self, status):
+        if status == self.status:
+            return
+        self.log("Status changed from %s to %s." % (self.status, status))
+        self.status = status
+
     def add_url(self, url, name=None):
         self.urls.append(URL(url, name))
 
@@ -35,20 +41,23 @@ class Task(Base):
 
     def done(self):
         self.finished_at = datetime.datetime.now()
-        self.status = "done"
+        self._set_status("done")
         self.active_order = 0
 
     def activate(self):
-        self.status = "active"
+        self._set_status("active")
         self.active_order = 0
 
     def deactivate(self):
-        self.status = "inbox"
-        self.active_order = 0
+        self.inbox()
 
     def inbox(self):
-        self.status = "inbox"
+        self._set_status("inbox")
         self.active_order = 0
+
+    def block(self, reason):
+        self._set_status("blocked")
+        self.log("Blocked: %s" % reason)
 
     def log(self, message):
         self.logs.append(LogEntry(message))
@@ -59,10 +68,6 @@ class Task(Base):
         for t in self.tomatoes:
             tomato_str += t.char()
         print tomato_str
-
-    def block(self, reason):
-        self.status = 'blocked'
-        self.log("Blocked: %s" % reason)
 
     def set_active_order(self, active_order):
         self.active_order = active_order
