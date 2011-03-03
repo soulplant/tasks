@@ -56,6 +56,9 @@ class Task(Base):
             tomato_str += t.char()
         print tomato_str
 
+    def set_active_order(self, active_order):
+        self.active_order = active_order
+
     def show_status_line(self):
         print "%3d %s" % (self.id, self.name)
 

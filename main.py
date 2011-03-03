@@ -1,5 +1,9 @@
+from __future__ import with_statement
+from sqlalchemy.sql.expression import desc
 from model import session, Task, LogEntry, Tomato, URL
+import os
 import sys
+import tempfile
 
 class Command(object):
     def has_arg(self, arg, long_arg=None):
@@ -13,10 +17,13 @@ class Command(object):
         return session.query(Task).filter_by(id=task_id).one()
     
     def get_tasks(self, **kwargs):
-        return session.query(Task).filter_by(**kwargs).order_by(Task.active_order, Task.id).all()
+        return session.query(Task).filter_by(**kwargs).order_by(desc(Task.active_order), Task.id).all()
+
+    def get_active_tasks(self):
+        return self.get_tasks(status='active')
 
     def get_top_task(self):
-        tasks = self.get_tasks(status='active')
+        tasks = self.get_active_tasks()
         if len(tasks) > 0:
             return tasks[0]
         return None
@@ -151,6 +158,43 @@ class DoneCommand(Command):
         task.show_progress()
         print "DONE"
 
+class ReorderCommand(Command):
+    name = "reorder"
+
+    def __init__(self, args):
+        Command.__init__(self)
+        self.args = args
+
+    def set_task_active_order(self, task_id, active_order):
+        self.get_task(task_id).set_active_order(active_order)
+
+    def reorder(self, tasks):
+        input_lines = ["%3d %s" % (t.id, t.name) for t in tasks]
+
+        temp_file = tempfile.mkstemp()[1]
+        with open(temp_file, 'w') as f:
+            f.write("\n".join(input_lines))
+
+        result = os.system("vim %s" % temp_file)
+        if result == 0:
+            with open(temp_file, 'r') as f:
+                output_lines = f.readlines()
+            i = len(output_lines)
+            for j in range(len(output_lines)):
+                task_id = int(output_lines[j].lstrip().split(' ')[0])
+                self.set_task_active_order(task_id, i-j)
+            session.commit()
+            print "Reordered active list."
+        else:
+            print "Cancelled reorder."
+
+    def execute(self):
+        tasks = self.get_active_tasks()
+        if len(tasks) == 0:
+            self.no_active_tasks()
+            return
+        self.reorder(tasks)
+
 Commands = [
     ListTasksCommand,
     AddTaskCommand,
@@ -160,6 +204,7 @@ Commands = [
     DashCommand,
     ShowCommand,
     DoneCommand,
+    ReorderCommand,
 ]
 
 def lookup_command(name):
