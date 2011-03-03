@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from __future__ import with_statement
 from sqlalchemy.sql.expression import desc
 from model import session, Task, LogEntry, Tomato, URL
