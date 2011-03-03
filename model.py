@@ -18,11 +18,13 @@ class Task(Base):
     notes = Column(Text)
     created_at = Column(DateTime)
     status = Column(Enum("active", "inbox", "done"))
+    active_order = Column(Integer)
 
     def __init__(self, name):
         self.name = name
         self.created_at = datetime.datetime.now()
         self.status = "inbox"
+        self.active_order = 0
 
     def add_url(self, url, name=None):
         self.urls.append(URL(url, name))
@@ -30,18 +32,31 @@ class Task(Base):
     def add_tomato(self, whole=True):
         self.tomatoes.append(Tomato(whole))
 
-    def finish(self):
+    def done(self):
         self.finished_at = datetime.datetime.now()
         self.status = "done"
+        self.active_order = 0
 
     def activate(self):
         self.status = "active"
+        self.active_order = 0
 
     def deactivate(self):
         self.status = "inbox"
+        self.active_order = 0
 
     def log(self, message):
         self.logs.append(LogEntry(message))
+
+    def show_progress(self):
+        print "=== %s" % self.name
+        tomato_str = ""
+        for t in self.tomatoes:
+            tomato_str += t.char()
+        print tomato_str
+
+    def show_status_line(self):
+        print "%3d %s" % (self.id, self.name)
 
 class URL(Base):
     __tablename__ = 'urls'
@@ -82,35 +97,13 @@ class Tomato(Base):
         self.whole = whole
         self.finished_at = datetime.datetime.now()
 
+    def char(self):
+        if self.whole:
+            return 'X'
+        return '-'
+
 engine = create_engine('sqlite:///test.db', echo=False)
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 session = Session()
-
-
-t = Task('do some stuff')
-t.activate()
-t.notes = 'hey there'
-t.add_url('http://www.google.com', "Where to search for for stuff.")
-t.add_url('http://www.yahoo.com', "Somewhere else to search.")
-t.log("Broke the build.")
-t.log("Mailed to Ojan.")
-t.add_tomato()
-t.add_tomato()
-t.add_tomato()
-t.add_tomato(False)
-session.add(t)
-
-session.commit()
-
-t = session.query(Task).all()[0]
-print "Finished tasks:"
-for u in session.query(Task).filter_by(status='done'):
-    print u
-print "Tasks in the inbox:"
-for u in session.query(Task).filter_by(status='inbox'):
-    print u
-print "Active tasks:"
-for u in session.query(Task).filter_by(status='active'):
-    print map(lambda u: u.name, u.urls)
