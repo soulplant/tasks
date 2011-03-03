@@ -7,11 +7,17 @@ import sys
 import tempfile
 
 class Command(object):
-    def has_arg(self, arg, long_arg=None):
+    def has_arg(self, arg, long_arg, next_arg=False):
         for i in range(len(self.args)):
             if self.args[i] == '-' + arg or (long_arg and self.args[i] == '--' + long_arg):
                 del(self.args[i])
+                if next_arg:
+                    attached_arg = self.args[i]
+                    del(self.args[i])
+                    return attached_arg
                 return True
+        if next_arg:
+            return None
         return False
     
     def get_task(self, task_id):
