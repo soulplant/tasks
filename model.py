@@ -18,7 +18,7 @@ class Task(Base):
     finished_at = Column(DateTime)
     notes = Column(Text)
     created_at = Column(DateTime)
-    status = Column(Enum("active", "inbox", "done"))
+    status = Column(Enum("active", "inbox", "done", "blocked"))
     active_order = Column(Integer)
 
     def __init__(self, name):
@@ -55,6 +55,10 @@ class Task(Base):
         for t in self.tomatoes:
             tomato_str += t.char()
         print tomato_str
+
+    def block(self):
+        self.status = 'blocked'
+        self.log("Blocked")
 
     def set_active_order(self, active_order):
         self.active_order = active_order

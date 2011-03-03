@@ -40,11 +40,14 @@ class ListTasksCommand(Command):
         self.args = args
         self.show_all = self.has_arg('a', 'all')
         self.show_inbox = self.has_arg('i', 'inbox')
+        self.show_blocked = self.has_arg('b', 'blocked')
 
     def gather_tasks(self):
         kwargs = {}
         if self.show_all:
             return self.get_tasks()
+        if self.show_blocked:
+            return self.get_tasks(status='blocked')
         if self.show_inbox:
             return self.get_tasks(status='inbox')
         return self.get_tasks(status='active')
@@ -83,12 +86,20 @@ class ActivateCommand(Command):
         Command.__init__(self)
         self.args = args
         self.deactivate = self.has_arg('d', 'deactivate')
-        self.task = self.get_task(int(self.args[0]))
+        self.block = self.has_arg('b', 'block')
+        # TODO Pull this into Command.
+        if len(self.args) == 1:
+            self.task = self.get_task(int(self.args[0]))
+        else:
+            self.task = self.get_top_task()
 
     def execute(self):
         if self.deactivate:
             self.task.deactivate()
             action = "Deactivated"
+        elif self.block:
+            self.task.block()
+            action = "Blocked"
         else:
             self.task.activate()
             action = "Activated"
