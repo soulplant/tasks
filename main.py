@@ -32,6 +32,12 @@ class Command(object):
     def no_active_tasks(self):
         print "No active tasks"
 
+    def get_named_task(self):
+        if len(self.args) == 1:
+            return self.get_task(int(self.args[0]))
+        else:
+            return self.get_top_task()
+
 class ListTasksCommand(Command):
     name = "list-tasks"
 
@@ -87,11 +93,7 @@ class ActivateCommand(Command):
         self.args = args
         self.deactivate = self.has_arg('d', 'deactivate')
         self.block = self.has_arg('b', 'block')
-        # TODO Pull this into Command.
-        if len(self.args) == 1:
-            self.task = self.get_task(int(self.args[0]))
-        else:
-            self.task = self.get_top_task()
+        self.task = self.get_named_task()
 
     def execute(self):
         if self.deactivate:
@@ -113,9 +115,12 @@ class NotesCommand(Command):
     def __init__(self, args):
         Command.__init__(self)
         self.args = args
-        self.task = self.get_task(int(self.args[0]))
+        self.task = self.get_named_task()
 
     def execute(self):
+        if not self.task:
+            self.no_active_tasks()
+            return
         print self.task.notes
 
 class TomatoCommand(Command):
@@ -125,15 +130,15 @@ class TomatoCommand(Command):
     def __init__(self, args):
         Command.__init__(self)
         self.args = args
+        self.task = self.get_named_task()
 
     def execute(self):
-        task = self.get_top_task()
-        if not task:
+        if not self.task:
             self.no_active_tasks()
             return
-        task.add_tomato(self.is_whole)
+        self.task.add_tomato(self.is_whole)
         session.commit()
-        task.show_progress()
+        self.task.show_progress()
 
 class DashCommand(TomatoCommand):
     name = "-"
@@ -145,13 +150,13 @@ class ShowCommand(Command):
     def __init__(self, args):
         Command.__init__(self)
         self.args = args
+        self.task = self.get_named_task()
 
     def execute(self):
-        task = self.get_top_task()
-        if not task:
+        if not self.task:
             self.no_active_tasks()
             return
-        task.show_progress()
+        self.task.show_progress()
 
 class DoneCommand(Command):
     name = "done"
@@ -159,15 +164,15 @@ class DoneCommand(Command):
     def __init__(self, args):
         Command.__init__(self)
         self.args = args
+        self.task = self.get_named_task()
 
     def execute(self):
-        task = self.get_top_task()
-        if not task:
+        if not self.task:
             self.no_active_tasks()
             return
-        task.done()
+        self.task.done()
         session.commit()
-        task.show_progress()
+        self.task.show_progress()
         print "DONE"
 
 class ReorderCommand(Command):
