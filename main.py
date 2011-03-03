@@ -195,6 +195,20 @@ class ReorderCommand(Command):
             return
         self.reorder(tasks)
 
+class PickCommand(Command):
+    name = "pick"
+
+    def __init__(self, args):
+        Command.__init__(self)
+        self.args = args
+        self.task = self.get_task(int(args[0]))
+
+    def execute(self):
+        tasks = self.get_active_tasks()
+        self.task.active_order = tasks[0].active_order + 1
+        session.commit()
+        print "Picked task %d" % self.task.id
+
 Commands = [
     ListTasksCommand,
     AddTaskCommand,
@@ -205,6 +219,7 @@ Commands = [
     ShowCommand,
     DoneCommand,
     ReorderCommand,
+    PickCommand,
 ]
 
 def lookup_command(name):
