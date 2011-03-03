@@ -27,3 +27,5 @@ Note that for many of the commands the task id is optional, and omitting it sele
     t pick 1         # puts task 1 at the top of your active task list
     t log            # show the log for the current task
     t log -m 'Log message.'           # adds a log message to the current task
+    t url            # show the list of URLs associated with the current task
+    t url -a http://w.com             # adds the given url to the current task
