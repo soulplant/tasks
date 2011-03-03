@@ -56,9 +56,9 @@ class Task(Base):
             tomato_str += t.char()
         print tomato_str
 
-    def block(self):
+    def block(self, reason):
         self.status = 'blocked'
-        self.log("Blocked")
+        self.log("Blocked: %s" % reason)
 
     def set_active_order(self, active_order):
         self.active_order = active_order

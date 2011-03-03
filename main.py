@@ -98,7 +98,7 @@ class ActivateCommand(Command):
         Command.__init__(self)
         self.args = args
         self.deactivate = self.has_arg('d', 'deactivate')
-        self.block = self.has_arg('b', 'block')
+        self.block = self.has_arg('b', 'block', True)
         self.task = self.get_named_task()
 
     def execute(self):
@@ -106,7 +106,7 @@ class ActivateCommand(Command):
             self.task.deactivate()
             action = "Deactivated"
         elif self.block:
-            self.task.block()
+            self.task.block(self.block)
             action = "Blocked"
         else:
             self.task.activate()
