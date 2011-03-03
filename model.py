@@ -5,6 +5,7 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Tim
 from sqlalchemy.orm import sessionmaker, relationship, backref
 
 import datetime
+import os
 import sqlalchemy
 
 Base = declarative_base()
@@ -102,7 +103,7 @@ class Tomato(Base):
             return 'X'
         return '-'
 
-engine = create_engine('sqlite:///test.db', echo=False)
+engine = create_engine('sqlite:///%s/.tasks.db' % os.environ['HOME'], echo=False)
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
