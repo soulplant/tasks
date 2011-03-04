@@ -77,12 +77,10 @@ class Task(Base):
         self.show_progress()
         if len(self.urls):
             print
-            print "URLs"
             for u in self.urls:
                 u.show()
         if self.notes:
             print
-            print "Notes"
             print self.notes
 
     def show_logs(self):
