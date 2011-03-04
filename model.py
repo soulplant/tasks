@@ -110,7 +110,7 @@ class LogEntry(Base):
         self.created_at = datetime.datetime.now()
 
     def show(self):
-        print "%s %s" % (pretty_date(self.created_at), self.message)
+        print "[%s]   %s" % (pretty_date(self.created_at), self.message)
 
 class Tomato(Base):
     __tablename__ = 'tomatoes'
