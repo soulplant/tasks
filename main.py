@@ -139,13 +139,23 @@ class NotesCommand(Command):
     def __init__(self, args):
         Command.__init__(self)
         self.args = args
+        self.edit = self.has_arg('e', 'edit')
         self.task = self.get_named_task()
 
     def execute(self):
         if not self.task:
             self.no_active_tasks()
             return
-        print self.task.notes
+        if not self.edit:
+            print self.task.notes
+            return
+        current_text = ''
+        if self.task.notes:
+            current_text = self.task.notes
+        edited_text = self.edit_text(current_text)
+        self.task.notes = edited_text
+        session.commit()
+        print "Updated notes."
 
 class TomatoCommand(Command):
     name = "X"
