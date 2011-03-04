@@ -184,13 +184,17 @@ class ShowCommand(Command):
     def __init__(self, args):
         Command.__init__(self)
         self.args = args
+        self.progress_only = self.has_arg('p', 'progress')
         self.task = self.get_named_task()
 
     def execute(self):
         if not self.task:
             self.no_active_tasks()
             return
-        self.task.show()
+        if self.progress_only:
+            self.task.show_progress()
+        else:
+            self.task.show()
 
 class DoneCommand(Command):
     name = "done"
