@@ -269,6 +269,7 @@ class UrlCommand(Command):
         Command.__init__(self)
         self.args = args
         self.url = self.has_arg('a', 'add', True)
+        self.message = self.has_arg('m', 'message', True)
         self.task = self.get_named_task()
 
     def execute(self):
@@ -276,7 +277,7 @@ class UrlCommand(Command):
             self.no_active_tasks()
             return
         if self.url:
-            self.task.add_url(self.url)
+            self.task.add_url(self.url, self.message)
             print "Added URL."
             session.commit()
             return
