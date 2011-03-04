@@ -169,7 +169,7 @@ class ShowCommand(Command):
         if not self.task:
             self.no_active_tasks()
             return
-        self.task.show_progress()
+        self.task.show()
 
 class DoneCommand(Command):
     name = "done"
@@ -259,8 +259,7 @@ class LogCommand(Command):
             return
 
         self.task.show_status_line()
-        for l in self.task.logs:
-            l.show()
+        self.task.show_logs()
 
 class UrlCommand(Command):
     name = "url"

@@ -73,6 +73,22 @@ class Task(Base):
             tomato_str += t.char()
         print tomato_str
 
+    def show(self):
+        self.show_progress()
+        if len(self.urls):
+            print
+            print "URLs"
+            for u in self.urls:
+                u.show()
+        if self.notes:
+            print
+            print "Notes"
+            print self.notes
+
+    def show_logs(self):
+        for l in self.logs:
+            l.show()
+
     def set_active_order(self, active_order):
         self.active_order = active_order
 
@@ -94,7 +110,11 @@ class URL(Base):
 
     # TODO Change show_* methods into string returning functions.
     def show(self):
-        print self.url
+        name_str = ""
+        if self.name:
+            name_str = "%s - " % self.name
+
+        print "%s%s" % (name_str, self.url)
 
 class LogEntry(Base):
     __tablename__ = 'log_entries'
