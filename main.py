@@ -44,6 +44,17 @@ class Command(object):
         else:
             return self.get_top_task()
 
+    def edit_text(self, input_text):
+        temp_file = tempfile.mkstemp()[1]
+        with open(temp_file, 'w') as f:
+            f.write(input_text)
+        result = os.system("vim %s" % temp_file)
+        if result == 0:
+            with open(temp_file, 'r') as f:
+                output_text = f.read()
+                return output_text
+        return None
+
 class ListTasksCommand(Command):
     name = "list-tasks"
 
@@ -201,22 +212,17 @@ class ReorderCommand(Command):
     def reorder(self, tasks):
         input_lines = ["%3d %s" % (t.id, t.name) for t in tasks]
 
-        temp_file = tempfile.mkstemp()[1]
-        with open(temp_file, 'w') as f:
-            f.write("\n".join(input_lines))
-
-        result = os.system("vim %s" % temp_file)
-        if result == 0:
-            with open(temp_file, 'r') as f:
-                output_lines = f.readlines()
-            i = len(output_lines)
-            for j in range(len(output_lines)):
-                task_id = int(output_lines[j].lstrip().split(' ')[0])
-                self.set_task_active_order(task_id, i-j)
-            session.commit()
-            print "Reordered active list."
-        else:
+        output_lines = self.edit_text("\n".join(input_lines)).split("\n")
+        output_lines = filter(bool, output_lines) # remove empty lines
+        if not output_lines:
             print "Cancelled reorder."
+            return
+        i = len(output_lines)
+        for j in range(len(output_lines)):
+            task_id = int(output_lines[j].lstrip().split(' ')[0])
+            self.set_task_active_order(task_id, i-j)
+        session.commit()
+        print "Reordered active list."
 
     def execute(self):
         tasks = self.get_active_tasks()
