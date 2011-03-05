@@ -153,6 +153,9 @@ class NotesCommand(Command):
         if self.task.notes:
             current_text = self.task.notes
         edited_text = self.edit_text(current_text)
+        if not edited_text:
+            print "Cancelled notes update."
+            return
         self.task.notes = edited_text
         session.commit()
         print "Updated notes."
